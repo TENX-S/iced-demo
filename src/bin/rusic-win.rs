@@ -108,7 +108,7 @@ impl Sandbox for RusicWin {
             })
                 .width(Length::Fill)
                 .height(Length::Fill)
-                .spacing(10)
+                .spacing(0)
                 .on_drag(Message::Dragged)
                 .on_resize(10, Message::Resized)
                 .on_key_press(handle_hotkey);

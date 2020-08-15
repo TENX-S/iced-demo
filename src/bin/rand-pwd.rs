@@ -3,8 +3,8 @@ use grp::*;
 use iced::{
     slider, Slider,
     button, Button,
-    Container, Element, Settings,
-    Text, Column, Length, Sandbox, Row,
+    Container, Element, Settings, Align,
+    Text, Column, Length, Sandbox, Row, HorizontalAlignment
 };
 
 
@@ -107,16 +107,44 @@ impl Sandbox for RandPwdWin {
                 .push(line);
 
 
-        let selection_pane = Column::new()
-            .spacing(20)
-            .padding(2)
-            .max_width(1000)
-            .push(pane_factory(Text::new(ltr_cnt.to_string()).size(20), letter))
-            .push(pane_factory(Text::new(sbl_cnt.to_string()).size(20), symbol))
-            .push(pane_factory(Text::new(num_cnt.to_string()).size(20), number))
-            .push(Text::new(sum.to_string()).size(50))
-            .push(Text::new(self.rand_pwd.show()).size(20))
-            .push(Button::new(&mut self.refresh, Text::new("Generate!")).on_press(Message::RefreshPressed));
+
+        let selection_pane =
+            Column::new()
+                .spacing(20)
+                .padding(2)
+                .max_width(1000)
+                .align_items(Align::Center)
+                .push(pane_factory(
+                    Text::new(format!("Letters: {:>5}", ltr_cnt))
+                        .width(Length::Units(120))
+                        .size(20),
+                    letter)
+                )
+                .push(pane_factory(
+                    Text::new(format!("Symbols: {:>2}", sbl_cnt))
+                        .width(Length::Units(120))
+                        .size(20),
+                    symbol)
+                )
+                .push(pane_factory(
+                    Text::new(format!("Numbers: {}", num_cnt))
+                        .width(Length::Units(120))
+                        .size(20),
+                    number)
+                )
+                .push(Text::new(sum.to_string()).size(50))
+                .push(Text::new(self.rand_pwd.show()).size(20))
+                .push(Button::new(
+                    &mut self.refresh,
+                    Text::new("Generate!")
+                        .width(Length::Fill)
+                        .horizontal_alignment(HorizontalAlignment::Center)
+                        .size(16)
+                )
+                    .width(Length::Units(200))
+                    .padding(10)
+                    .on_press(Message::RefreshPressed)
+                );
 
         Container::new(selection_pane)
             .width(Length::Fill)
