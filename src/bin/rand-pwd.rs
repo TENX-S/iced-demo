@@ -1,5 +1,5 @@
 
-use rand_pwd_win::*;
+use grp::*;
 use iced::{
     slider, button, Column,
     Container, Element, Length,
@@ -17,14 +17,11 @@ fn main() {
 #[derive(Default)]
 struct RandPwdWin {
 
-    letter: slider::State,
-    symbol: slider::State,
-    number: slider::State,
-    refresh: button::State,
+    letter: slider::State, ltr_cnt: u16,
+    symbol: slider::State, sbl_cnt: u16,
+    number: slider::State, num_cnt: u16,
 
-    ltr_cnt: f32,
-    sbl_cnt: f32,
-    num_cnt: f32,
+    refresh: button::State,
 
     rand_pwd: RandPwd,
 }
@@ -34,9 +31,9 @@ struct RandPwdWin {
 #[derive(Debug, Clone)]
 enum Message {
 
-    LetterChanged(f32),
-    SymbolChanged(f32),
-    NumberChanged(f32),
+    LetterChanged(u16),
+    SymbolChanged(u16),
+    NumberChanged(u16),
     RefreshPressed,
 
 }
@@ -54,22 +51,21 @@ impl Sandbox for RandPwdWin {
 
     fn update(&mut self, message: Message) {
 
-
         match message {
             Message::LetterChanged(value) => {
                 self.ltr_cnt = value;
-                self.rand_pwd.set_cnt("ltr", value as u8);
+                self.rand_pwd.set_cnt("ltr", value);
             },
             Message::SymbolChanged(value) => {
                 self.sbl_cnt = value;
-                self.rand_pwd.set_cnt("sbl", value as u8);
+                self.rand_pwd.set_cnt("sbl", value);
             },
             Message::NumberChanged(value) => {
                 self.num_cnt = value;
-                self.rand_pwd.set_cnt("num", value as u8);
+                self.rand_pwd.set_cnt("num", value);
             },
             Message::RefreshPressed => {
-            	self.rand_pwd.join();
+                self.rand_pwd.join();
             }
         }
 
@@ -79,28 +75,28 @@ impl Sandbox for RandPwdWin {
 
         let letter = Slider::new(
             &mut self.letter,
-            0.0..=100.0,
+            0..=100,
             self.ltr_cnt,
             Message::LetterChanged,
         );
 
         let symbol = Slider::new(
             &mut self.symbol,
-            0.0..=100.0,
+            0..=100,
             self.sbl_cnt,
             Message::SymbolChanged,
         );
 
         let number = Slider::new(
             &mut self.number,
-            0.0..=100.0,
+            0..=100,
             self.num_cnt,
             Message::NumberChanged,
         );
 
-        let ltr_cnt = self.ltr_cnt as u16;
-        let sbl_cnt = self.sbl_cnt as u16;
-        let num_cnt = self.num_cnt as u16;
+        let ltr_cnt = self.ltr_cnt;
+        let sbl_cnt = self.sbl_cnt;
+        let num_cnt = self.num_cnt;
         let sum = ltr_cnt + sbl_cnt + num_cnt;
 
         let content = Column::new()
