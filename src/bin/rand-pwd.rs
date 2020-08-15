@@ -1,11 +1,11 @@
 
 use grp::*;
 use iced::{
-    slider, button, Column,
-    Container, Element, Length,
-    Sandbox, Settings, Slider, Text, Button
+    slider, Slider,
+    button, Button,
+    Container, Element, Settings,
+    Text, Column, Length, Sandbox, Row,
 };
-
 
 
 
@@ -99,21 +99,26 @@ impl Sandbox for RandPwdWin {
         let num_cnt = self.num_cnt;
         let sum = ltr_cnt + sbl_cnt + num_cnt;
 
-        let content = Column::new()
+        let pane_factory = |text, line|
+            Row::new()
+                .spacing(50)
+                .max_height(50)
+                .push(text)
+                .push(line);
+
+
+        let selection_pane = Column::new()
             .spacing(20)
             .padding(2)
             .max_width(1000)
-            .push(letter)
-            .push(symbol)
-            .push(number)
-            .push(Text::new(ltr_cnt.to_string()).size(50))
-            .push(Text::new(sbl_cnt.to_string()).size(50))
-            .push(Text::new(num_cnt.to_string()).size(50))
+            .push(pane_factory(Text::new(ltr_cnt.to_string()).size(20), letter))
+            .push(pane_factory(Text::new(sbl_cnt.to_string()).size(20), symbol))
+            .push(pane_factory(Text::new(num_cnt.to_string()).size(20), number))
             .push(Text::new(sum.to_string()).size(50))
             .push(Text::new(self.rand_pwd.show()).size(20))
             .push(Button::new(&mut self.refresh, Text::new("Generate!")).on_press(Message::RefreshPressed));
 
-        Container::new(content)
+        Container::new(selection_pane)
             .width(Length::Fill)
             .height(Length::Fill)
             .center_x()

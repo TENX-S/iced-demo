@@ -1,14 +1,18 @@
 use iced::{
-    button, keyboard, pane_grid, scrollable, Align, Button, Column, Container,
-    Element, HorizontalAlignment, Length, PaneGrid, Sandbox, Scrollable,
-    Settings, Text,
+    button, Button, 
+    pane_grid, PaneGrid, 
+    scrollable, Scrollable,
+    keyboard, Length, Settings, HorizontalAlignment,
+    Text, Align, Column, Sandbox, Element, Container,
 };
 
+
 pub fn main() {
-    Example::run(Settings::default())
+    RusicWin::run(Settings::default())
 }
 
-struct Example {
+
+struct RusicWin {
     panes: pane_grid::State<Content>,
     panes_created: usize,
 }
@@ -24,44 +28,37 @@ enum Message {
     CloseFocused,
 }
 
-impl Sandbox for Example {
+impl Sandbox for RusicWin {
     type Message = Message;
 
     fn new() -> Self {
         let (panes, _) = pane_grid::State::new(Content::new(0));
 
-        Example {
+        RusicWin {
             panes,
             panes_created: 1,
         }
     }
 
     fn title(&self) -> String {
-        String::from("Pane grid - Iced")
+        String::from("Rusic")
     }
 
     fn update(&mut self, message: Message) {
         match message {
-            Message::Split(axis, pane) => {
-                let _ = self.panes.split(
-                    axis,
-                    &pane,
-                    Content::new(self.panes_created),
-                );
 
+            Message::Split(axis, pane) => {
+                self.panes.split(axis, &pane, Content::new(self.panes_created),).unwrap();
                 self.panes_created += 1;
             }
+
             Message::SplitFocused(axis) => {
                 if let Some(pane) = self.panes.active() {
-                    let _ = self.panes.split(
-                        axis,
-                        &pane,
-                        Content::new(self.panes_created),
-                    );
-
+                    self.panes.split(axis, &pane, Content::new(self.panes_created),).unwrap();
                     self.panes_created += 1;
                 }
             }
+
             Message::FocusAdjacent(direction) => {
                 if let Some(pane) = self.panes.active() {
                     if let Some(adjacent) =
@@ -71,40 +68,42 @@ impl Sandbox for Example {
                     }
                 }
             }
+
             Message::Resized(pane_grid::ResizeEvent { split, ratio }) => {
                 self.panes.resize(&split, ratio);
             }
-            Message::Dragged(pane_grid::DragEvent::Dropped {
-                                 pane,
-                                 target,
-                             }) => {
+
+            Message::Dragged(pane_grid::DragEvent::Dropped { pane, target, }) => {
                 self.panes.swap(&pane, &target);
             }
+
             Message::Dragged(_) => {}
+
             Message::Close(pane) => {
-                let _ = self.panes.close(&pane);
+                self.panes.close(&pane).unwrap();
             }
+
             Message::CloseFocused => {
                 if let Some(pane) = self.panes.active() {
-                    let _ = self.panes.close(&pane);
+                    self.panes.close(&pane).unwrap();
                 }
             }
+
         }
+
     }
 
     fn view(&mut self) -> Element<Message> {
+
         let total_panes = self.panes.len();
 
         let pane_grid =
             PaneGrid::new(&mut self.panes, |pane, content, focus| {
                 let is_focused = focus.is_some();
-                let title_bar =
-                    pane_grid::TitleBar::new(format!("Pane {}", content.id))
-                        .padding(10)
-                        .style(style::TitleBar { is_focused });
+                let title_bar = pane_grid::TitleBar::new(format!("Pane {}", content.id)).padding(10)
+                                        .style(style::TitleBar { is_focused });
 
-                pane_grid::Content::new(content.view(pane, total_panes))
-                    .title_bar(title_bar)
+                pane_grid::Content::new(content.view(pane, total_panes)).title_bar(title_bar)
                     .style(style::Pane { is_focused })
             })
                 .width(Length::Fill)
@@ -151,6 +150,7 @@ struct Content {
 }
 
 impl Content {
+
     fn new(id: usize) -> Self {
         Content {
             id,
@@ -160,11 +160,8 @@ impl Content {
             close: button::State::new(),
         }
     }
-    fn view(
-        &mut self,
-        pane: pane_grid::Pane,
-        total_panes: usize,
-    ) -> Element<Message> {
+
+    fn view(&mut self, pane: pane_grid::Pane, total_panes: usize, ) -> Element<Message> {
         let Content {
             scroll,
             split_horizontally,
@@ -173,6 +170,7 @@ impl Content {
             ..
         } = self;
 
+        // 返回一个Button
         let button = |state, label, message, style| {
             Button::new(
                 state,
@@ -180,7 +178,7 @@ impl Content {
                     .width(Length::Fill)
                     .horizontal_alignment(HorizontalAlignment::Center)
                     .size(16),
-            )
+                )
                 .width(Length::Fill)
                 .padding(8)
                 .on_press(message)
