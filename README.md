@@ -1,3 +1,1 @@
-# Random Password Generator
-
-A demo
+# Many demos(written in Iced)
