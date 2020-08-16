@@ -1,16 +1,36 @@
 
 use grp::*;
+use std::collections::HashMap;
 use iced::{
     slider, Slider,
     button, Button,
-    Container, Element, Settings, Align,
-    Text, Column, Length, Sandbox, Row, HorizontalAlignment
+    scrollable, Scrollable,
+    Container, Element, Settings, Align, window, Font,
+    Text, Column, Length, Sandbox, Row, HorizontalAlignment,
 };
 
 
 
 fn main() {
-    RandPwdWin::run(Settings::default())
+
+    let settings = Settings {
+
+        window: window::Settings {
+            size: (800, 600),
+            min_size: None,
+            max_size: None,
+            resizable: true,
+            decorations: true,
+            icon: None
+        },
+
+        flags: (),
+        default_font: None, //Some(include_bytes!("../../font/FiraCode-Retina.ttf")),
+        default_text_size: 0,
+        antialiasing: false
+    };
+
+    RandPwdWin::run(settings)
 }
 
 
@@ -22,6 +42,7 @@ struct RandPwdWin {
     number: slider::State, num_cnt: u16,
 
     refresh: button::State,
+    scroll: scrollable::State,
 
     rand_pwd: RandPwd,
 }
@@ -75,21 +96,21 @@ impl Sandbox for RandPwdWin {
 
         let letter = Slider::new(
             &mut self.letter,
-            0..=100,
+            0..=10000,
             self.ltr_cnt,
             Message::LetterChanged,
         );
 
         let symbol = Slider::new(
             &mut self.symbol,
-            0..=100,
+            0..=10000,
             self.sbl_cnt,
             Message::SymbolChanged,
         );
 
         let number = Slider::new(
             &mut self.number,
-            0..=100,
+            0..=10000,
             self.num_cnt,
             Message::NumberChanged,
         );
@@ -106,7 +127,7 @@ impl Sandbox for RandPwdWin {
                 .push(text)
                 .push(line);
 
-
+        let monospace_font = Font::External { name: "FiraCode-Retina", bytes: include_bytes!("../../font/FiraCode-Retina.ttf") };
 
         let selection_pane =
             Column::new()
@@ -115,38 +136,51 @@ impl Sandbox for RandPwdWin {
                 .max_width(1000)
                 .align_items(Align::Center)
                 .push(pane_factory(
-                    Text::new(format!("Letters: {:>5}", ltr_cnt))
+                    Text::new(format!("Letters: {}", ltr_cnt))
+                        .font(monospace_font)
                         .width(Length::Units(120))
                         .size(20),
                     letter)
                 )
                 .push(pane_factory(
-                    Text::new(format!("Symbols: {:>2}", sbl_cnt))
+                    Text::new(format!("Symbols: {}", sbl_cnt))
+                        .font(monospace_font)
                         .width(Length::Units(120))
                         .size(20),
                     symbol)
                 )
                 .push(pane_factory(
                     Text::new(format!("Numbers: {}", num_cnt))
+                        .font(monospace_font)
                         .width(Length::Units(120))
                         .size(20),
                     number)
                 )
-                .push(Text::new(sum.to_string()).size(50))
-                .push(Text::new(self.rand_pwd.show()).size(20))
+                .push(Text::new(sum.to_string())
+                        .font(monospace_font)
+                        .size(50)
+                )
+                .push(Text::new(self.rand_pwd.show())
+                        .font(monospace_font)
+                        .size(20)
+                )
                 .push(Button::new(
                     &mut self.refresh,
                     Text::new("Generate!")
+                        .font(monospace_font)
                         .width(Length::Fill)
                         .horizontal_alignment(HorizontalAlignment::Center)
                         .size(16)
                 )
                     .width(Length::Units(200))
-                    .padding(10)
+                    .padding(20)
                     .on_press(Message::RefreshPressed)
                 );
 
-        Container::new(selection_pane)
+        let scrollable = Scrollable::new(&mut self.scroll)
+            .push(Container::new(selection_pane).width(Length::Fill).center_x());
+
+        Container::new(scrollable)
             .width(Length::Fill)
             .height(Length::Fill)
             .center_x()
